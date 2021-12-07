@@ -1,5 +1,22 @@
 # Aidon/Hafslund AMS data parser
 
+Modified to read HAN data from mqtt (i.e. from a Tibber Pulse sending to a local server instead of to Tibber), but the aidon_obis.py doesn't quite match upstream. Did I get it from another project?
+
+
+### Example output
+
+    Subscribing to topic tibber
+    {'p_act_in': 3456}
+    {'version_id': b'AIDON_V0001', 'meter_id': b'735********', 'meter_type': b'6525', 'p_act_in': 3459, 'p_act_out': 0, 'p_react_in': 0, 'p_react_out': 311, 'il1': 5.3, 'il2': 9.6, 'ul1': 238.0, 'ul2': 238.8, 'ul3': 236.9}
+    {'p_act_in': 3458}
+    {'p_act_in': 3461}
+    {'p_act_in': 3469}
+
+
+
+
+# Original readme continues
+
 Use with an M-Bus dongle such as [this one](https://www.aliexpress.com/item/USB-to-MBUS-slave-module-MBUS-master-slave-communication-debugging-bus-monitor-TSS721-No-spontaneity-Self/32894249052.html).
 
 ### aidon_obis.py
