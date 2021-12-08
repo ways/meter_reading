@@ -112,7 +112,8 @@ class aidon:
                                 fields['energy_react_in'] = data[15] / 100.0
                                 fields['energy_react_out'] = data[16] / 100.0
 
-                self.callback(fields)
+                #self.callback(fields)
+                return fields
 
         # General HDLC decoder
         def decode(self, c):

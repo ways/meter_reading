@@ -1,3 +1,6 @@
 img/
 *.pyc
 start
+mqttconfig.py
+.vscode/
+venv/
