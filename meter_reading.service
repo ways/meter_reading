@@ -1,0 +1,12 @@
+[Unit]
+Description=Meter Reading
+
+[Service]
+Type=simple
+WorkingDirectory=/root/meter_reading
+ExecStart=/root/meter_reading/venv/bin/python3 /root/meter_reading/mqtt2mqtt.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
