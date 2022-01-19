@@ -24,11 +24,22 @@ def on_message(client, userdata, message):
         if value == 126: # 0x7e
             del(split[key])
 
-    result = a.parse(bytes(split))
+    result = None
+    try:
+        result = a.parse(bytes(split))
+    except (struct.error, IndexError):
+        pass
 
     if result:
-        print(mqttconfig.broker2_topic, result)
-        client2.publish(mqttconfig.broker2_topic, payload=str(result))
+        # type1: {"p_act_in": 1756}
+        # type2: {"version_id": b"AIDON_V0001", "meter_id": b"7XXXXXXXXXXXXXX1", "meter_type": b"6525", "p_act_in": 1756, "p_act_out": 0, "p_react_in": 0, "p_react_out": 299, "il1": 2.8, "il2": 1.3, "ul1": 237.4, "ul2": 236.3, "ul3": 235.5}
+        print(str(result).replace("'", '"').replace('b"', '"'))
+        for key, value in result.items():
+            topic=mqttconfig.broker2_topic + "/" + key
+            payload=str(value).replace("b'", '')
+
+            # print(topic, payload)
+            client2.publish(topic, payload=payload)
 
 
 def aidon_callback(fields):
