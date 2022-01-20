@@ -13,6 +13,9 @@ Modified to read HAN data from mqtt (i.e. from a Tibber Pulse sending to a local
     {'p_act_in': 3469}
 
 
+### How to get Tibber Pulse to send data to a local broker
+
+https://github.com/iotux/ElWiz#oppsett-av-pulse
 
 
 # Original readme continues
