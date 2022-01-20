@@ -12,6 +12,7 @@ import paho.mqtt.client as mqtt
 from aidon_obis import *
 import mqttconfig
 
+tempfile="/run/meter_" + mqttconfig.mqtt_client
 
 def on_message(client, userdata, message):
     global client2
@@ -34,6 +35,10 @@ def on_message(client, userdata, message):
         # type1: {"p_act_in": 1756}
         # type2: {"version_id": b"AIDON_V0001", "meter_id": b"7XXXXXXXXXXXXXX1", "meter_type": b"6525", "p_act_in": 1756, "p_act_out": 0, "p_react_in": 0, "p_react_out": 299, "il1": 2.8, "il2": 1.3, "ul1": 237.4, "ul2": 236.3, "ul3": 235.5}
         print(str(result).replace("'", '"').replace('b"', '"'))
+        # Write out result to temp-file incase one wants to use it locally
+        with open(tempfile, 'w', encoding = 'utf-8') as f:
+            f.write(str(result).replace("'", '"').replace('b"', '"'))
+
         for key, value in result.items():
             topic=mqttconfig.broker2_topic + "/" + key
             payload=str(value).replace("b'", '')
