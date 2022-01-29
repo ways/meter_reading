@@ -29,7 +29,8 @@ def on_message(client, userdata, message):
     try:
         result = a.parse(bytes(split))
     except (struct.error, IndexError):
-        pass
+        #pass
+        print("Unable to parse %s" % a)
 
     if result:
         # type1: {"p_act_in": 1756}
@@ -52,16 +53,23 @@ def aidon_callback(fields):
     print(fields)
 
 
+def on_disconnect(client, userdata, rc):
+    print("Disconnect reason  "  +str(rc))
+    sys.exit(1)
+
+
 a = aidon(aidon_callback)
 
 client = mqtt.Client(mqttconfig.mqtt_client)     #create new instance
 client.on_message=on_message   #attach function to callback
-client.connect(mqttconfig.broker_address) #connect to broker
+client.connect(mqttconfig.broker_address, keepalive=60) #connect to broker
+client.on_disconnect=on_disconnect
 client.loop_start()
 
 client2 = mqtt.Client(mqttconfig.mqtt_client)     #create new instance
 client2.username_pw_set(username=mqttconfig.broker2_user,password=mqttconfig.broker2_password)
-client2.connect(mqttconfig.broker2_address) #connect to broker
+client2.connect(mqttconfig.broker2_address, keepalive=60) #connect to broker
+client2.on_disconnect=on_disconnect
 
 time.sleep(1)
 
