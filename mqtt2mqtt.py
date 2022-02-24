@@ -6,6 +6,7 @@
 # pip install paho-mqtt
 
 import time
+import os
 import sys
 import json
 import paho.mqtt.client as mqtt
@@ -13,6 +14,7 @@ from aidon_obis import *
 import mqttconfig
 
 tempfile="/run/meter_" + mqttconfig.mqtt_client
+exit=False
 
 def on_message(client, userdata, message):
     global client2
@@ -28,7 +30,7 @@ def on_message(client, userdata, message):
     result = None
     try:
         result = a.parse(bytes(split))
-    except (struct.error, IndexError):
+    except (struct.error, IndexError, TypeError):
         #pass
         print("Unable to parse %s" % a)
 
@@ -54,8 +56,14 @@ def aidon_callback(fields):
 
 
 def on_disconnect(client, userdata, rc):
+    global exit
+
     print("Disconnect reason  "  +str(rc))
-    sys.exit(1)
+    print("Client %s, userdata %s" % (client, userdata))
+    #sys.exit(1)
+    #raise SystemExit()
+    exit=True
+
 
 
 a = aidon(aidon_callback)
@@ -77,7 +85,7 @@ time.sleep(1)
 client.subscribe("tibber")
 
 try:
-    while True:
+    while not exit:
         time.sleep(1)
   
 except KeyboardInterrupt:
