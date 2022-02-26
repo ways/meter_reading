@@ -29,30 +29,37 @@ def on_message(client, userdata, message):
 
     result = None
     try:
-        result = a.parse(bytes(split))
+        result = a.parse(bytes(split), mqttconfig.verbose)
     except (struct.error, IndexError, TypeError):
         #pass
-        print("Unable to parse %s" % a)
+        if mqttconfig.verbose:
+            print("on_message: Unable to parse %s" % a)
 
     if result:
         # type1: {"p_act_in": 1756}
         # type2: {"version_id": b"AIDON_V0001", "meter_id": b"7XXXXXXXXXXXXXX1", "meter_type": b"6525", "p_act_in": 1756, "p_act_out": 0, "p_react_in": 0, "p_react_out": 299, "il1": 2.8, "il2": 1.3, "ul1": 237.4, "ul2": 236.3, "ul3": 235.5}
-        print(str(result).replace("'", '"').replace('b"', '"'))
+        if mqttconfig.verbose:
+            print("on_message:", str(result).replace("'", '"').replace('b"', '"'))
         # Write out result to temp-file incase one wants to use it locally
-        with open(tempfile, 'w', encoding = 'utf-8') as f:
-            f.write(str(result).replace("'", '"').replace('b"', '"'))
+        if mqttconfig.store_local:
+            with open(tempfile, 'w', encoding = 'utf-8') as f:
+                f.write(str(result).replace("'", '"').replace('b"', '"'))
 
         for key, value in result.items():
             topic=mqttconfig.broker2_topic + "/" + key
             payload=str(value).replace("b'", '')
 
             # print(topic, payload)
-            client2.publish(topic, payload=payload)
+            try:
+                client2.publish(topic, payload=payload)
+            except TimeoutError():
+                print("on_message: Error, publish timepout")
 
 
 def aidon_callback(fields):
     """ Print result from parsing """
-    print(fields)
+    if mqttconfig.verbose:
+        print("aidon_callback", fields)
 
 
 def on_disconnect(client, userdata, rc):

@@ -13,6 +13,7 @@ ESCAPED = 2
 OBJECTS_2P5SEC = 1
 OBJECTS_10SEC = 12
 OBJECTS_1HOUR = 17
+OBJECTS_TEST = 45
 
 # OBIS types
 TYPE_STRING = 0x0a
@@ -20,6 +21,7 @@ TYPE_UINT32 = 0x06
 TYPE_INT16 = 0x10
 TYPE_OCTETS = 0x09
 TYPE_UINT16 = 0x12
+TYPE_TIBBER = 34
 
 class aidon:
         def __init__(self, callback):
@@ -30,7 +32,7 @@ class aidon:
 
         # Does a lot of assumptions on Aidon/Hafslund COSEM format
         # Not a general parser!
-        def parse(self, pkt):
+        def parse(self, pkt, verbose=False):
 
                 # 0,1 frame format
                 # 2 client address
@@ -48,9 +50,10 @@ class aidon:
                 fields = {}
 
                 # If number of objects doesn't match any known type, don't continue
-                if not (object_count in [OBJECTS_2P5SEC, OBJECTS_10SEC, OBJECTS_1HOUR]):
-                        print("Unrecognized object %s" % object_count)
-                        return
+                if not (object_count in [OBJECTS_2P5SEC, OBJECTS_10SEC, OBJECTS_1HOUR, OBJECTS_TEST]):
+                    if verbose:
+                        print("aidon.parse: Unrecognized object %s" % object_count)
+                    return
 
                 # Fill array with objects
                 data = []
@@ -83,16 +86,30 @@ class aidon:
                                 data.append(struct.unpack(">H", pkt[11:13])[0])
                                 pkt = pkt[19:]
 
+                        elif (dtype == TYPE_TIBBER):
+                                # Return Tibber Pulse debug data (ascii)
+                                # 69,"ch":1,"ssid":"iot","usbV":"2.31","Vin":"23.39","Vcap":"4.35","Vbck":"4.53","Build":"1.1.12","Hw":"F","bssid":"ffffff14098a","ID":"c82bbbbbab58","Uptime":5400,"mqttcon":0,"pubcnt":48,"rxcnt":48,"wificon":0,"wififail":0,"bits":68,"cSet":90,"Ic":0.00,"crcerr":0,"cAx":1.158454,"cB":10,"heap":211868,"baud":2400,"meter":"Aidon_V2","ntc":19.36,"s/w":0.000,"ct":0,"dtims":1120}}
+                                if verbose:
+                                    print("parse: Tibber status data")
+                                fields['status']: pkt
+                                return fields
                         else:
-                                return # Unknown type, cancel
+                                if verbose:
+                                    print("parse: unknown dtype", dtype)
+                                with open('/run/debug', 'wb') as f:
+                                        f.write(pkt)
 
-                #print("Data: {}".format(data))
+                                return # Unknown type, cancel
 
                 # Convert array with generic types to dictionary with sensible keys
                 if (len(data) == OBJECTS_2P5SEC):
+                        if verbose:
+                            print("parse: OBJECTS_2P5SEC")
                         fields['p_act_in'] = data[0]
 
                 elif (len(data) == OBJECTS_10SEC) or (len(data) == OBJECTS_1HOUR):
+                        if verbose:
+                            print("parse: OBJECTS_10SEC")
                         fields['version_id'] = data[0]
                         fields['meter_id'] = data[1]
                         fields['meter_type'] = data[2]
@@ -107,12 +124,15 @@ class aidon:
                         fields['ul3'] = data[11] / 10.0
 
                         if (len(data) == OBJECTS_1HOUR):
+                                if verbose:
+                                    print("parse: OBJECTS_1HOUR")
                                 fields['energy_act_in'] = data[13] / 100.0
                                 fields['energy_act_out'] = data[14] / 100.0
                                 fields['energy_react_in'] = data[15] / 100.0
                                 fields['energy_react_out'] = data[16] / 100.0
+                else:
+                    print("parse: unknown object. Length of data: ", len(data), ". Raw:", data)
 
-                #self.callback(fields)
                 return fields
 
         # General HDLC decoder
