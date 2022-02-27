@@ -90,12 +90,12 @@ class aidon:
                                 # Return Tibber Pulse debug data (ascii)
                                 # 69,"ch":1,"ssid":"iot","usbV":"2.31","Vin":"23.39","Vcap":"4.35","Vbck":"4.53","Build":"1.1.12","Hw":"F","bssid":"ffffff14098a","ID":"c82bbbbbab58","Uptime":5400,"mqttcon":0,"pubcnt":48,"rxcnt":48,"wificon":0,"wififail":0,"bits":68,"cSet":90,"Ic":0.00,"crcerr":0,"cAx":1.158454,"cB":10,"heap":211868,"baud":2400,"meter":"Aidon_V2","ntc":19.36,"s/w":0.000,"ct":0,"dtims":1120}}
                                 if verbose:
-                                    print("parse: Tibber status data")
+                                    print("parse: Tibber status data,", pkt)
                                 fields['status']: pkt
                                 return fields
                         else:
                                 if verbose:
-                                    print("parse: unknown dtype", dtype)
+                                    print("parse: unknown dtype", dtype, ". Writing to file")
                                 with open('/run/debug', 'wb') as f:
                                         f.write(pkt)
 
