@@ -1,11 +1,14 @@
 [Unit]
 Description=Meter Reading
+After=network.target
+StartLimitIntervalSec=60
 
 [Service]
 Type=simple
 WorkingDirectory=/root/meter_reading
 ExecStart=/root/meter_reading/venv/bin/python3 /root/meter_reading/mqtt2mqtt.py
-Restart=on-failure
+Restart=always
+RestartSec=60
 
 [Install]
 WantedBy=multi-user.target
