@@ -52,7 +52,7 @@ def on_message(client, userdata, message):
             # print(topic, payload)
             try:
                 client2.publish(topic, payload=payload)
-            except TimeoutError():
+            except: # (TimeoutError, OSError):
                 print("on_message: Error, publish timepout")
 
 
