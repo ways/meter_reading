@@ -77,7 +77,7 @@ a = aidon(aidon_callback)
 
 client = mqtt.Client(mqttconfig.mqtt_client)     #create new instance
 client.on_message=on_message   #attach function to callback
-client.connect(mqttconfig.broker_address, keepalive=60) #connect to broker
+client.connect(mqttconfig.broker_address, mqttconfig.broker_port, keepalive=60) #connect to broker
 client.on_disconnect=on_disconnect
 client.loop_start()
 
@@ -88,8 +88,8 @@ client2.on_disconnect=on_disconnect
 
 time.sleep(1)
 
-#print("Subscribing to topic","tibber")
-client.subscribe("tibber")
+print("Subscribing to topic", mqttconfig.broker_topic)
+client.subscribe(mqttconfig.broker_topic)
 
 try:
     while not exit:
